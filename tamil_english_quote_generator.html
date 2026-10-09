@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspirational Quote Generator | தமிழ் & English Quotes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Tamil and English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Tamil:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        tamil: ['"Anek Tamil"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and glassmorphism styling */
+        body {
+            font-family: 'Inter', 'Anek Tamil', sans-serif;
+            transition: background 0.5s ease;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid rgba(55, 65, 81, 0.4);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 min-h-screen text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <header class="w-full max-w-5xl mx-auto px-4 py-6 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-r from-indigo-500 to-pink-500 text-white p-3 rounded-2xl shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-quote-left text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    QuoteVerse <span class="text-xs bg-indigo-500/30 border border-indigo-400/40 text-indigo-300 px-2 py-0.5 rounded-full font-normal">தமிழ் & English</span>
+                </h1>
+                <p class="text-xs text-slate-300">Daily inspiration in dual languages</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <!-- Language Switcher Pills -->
+            <div class="bg-black/30 backdrop-blur-md p-1 rounded-full flex border border-white/10 text-xs">
+                <button onclick="setLangFilter('all')" id="lang-all" class="px-3 py-1.5 rounded-full font-medium transition text-white bg-indigo-600 shadow">Both</button>
+                <button onclick="setLangFilter('en')" id="lang-en" class="px-3 py-1.5 rounded-full font-medium transition text-slate-300 hover:text-white">English</button>
+                <button onclick="setLangFilter('ta')" id="lang-ta" class="px-3 py-1.5 rounded-full font-medium transition text-slate-300 hover:text-white">தமிழ்</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-3xl mx-auto px-4 py-8 flex-grow flex flex-col justify-center">
+        <!-- Main Card Container -->
+        <div id="quote-card" class="glass rounded-3xl shadow-2xl p-8 md:p-12 relative overflow-hidden transition-all duration-300 transform">
+            
+            <!-- Decorative Background Quote Watermark -->
+            <div class="absolute -top-6 -left-4 text-indigo-500/10 dark:text-indigo-400/10 text-9xl font-serif select-none pointer-events-none">“</div>
+
+            <!-- Top Badges & Actions Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-6 relative z-10">
+                <div class="flex items-center gap-2">
+                    <span id="quote-category-badge" class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30">
+                        Motivation
+                    </span>
+                    <span id="quote-lang-badge" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        English
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleFavorite()" id="favorite-btn" title="Save to Favorites" class="p-2.5 rounded-xl bg-white/60 dark:bg-slate-800/60 hover:bg-pink-500 hover:text-white text-slate-600 dark:text-slate-300 shadow-sm transition border border-slate-200/50 dark:border-slate-700/50">
+                        <i class="fa-regular fa-heart text-base"></i>
+                    </button>
+                    <button onclick="speakQuote()" title="Read Aloud (Text to Speech)" class="p-2.5 rounded-xl bg-white/60 dark:bg-slate-800/60 hover:bg-indigo-600 hover:text-white text-slate-600 dark:text-slate-300 shadow-sm transition border border-slate-200/50 dark:border-slate-700/50">
+                        <i class="fa-solid fa-volume-high text-base"></i>
+                    </button>
+                    <button onclick="copyQuote()" title="Copy Quote" class="p-2.5 rounded-xl bg-white/60 dark:bg-slate-800/60 hover:bg-indigo-600 hover:text-white text-slate-600 dark:text-slate-300 shadow-sm transition border border-slate-200/50 dark:border-slate-700/50">
+                        <i class="fa-solid fa-copy text-base"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quote Text Box -->
+            <div class="min-h-[140px] flex flex-col justify-center relative z-10 my-4">
+                <blockquote id="quote-text" class="text-2xl md:text-3xl font-semibold leading-relaxed text-slate-800 dark:text-slate-100 mb-4 animate-fade">
+                    "The best way to get started is to quit talking and begin doing."
+                </blockquote>
+                <p id="quote-author" class="text-right text-base md:text-lg font-medium text-indigo-600 dark:text-indigo-400 animate-fade">
+                    — Walt Disney
+                </p>
+            </div>
+
+            <!-- Tamil Meaning or Dual Translation Box (If available) -->
+            <div id="translation-container" class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60 hidden">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Translation / Dual Quote:</p>
+                <p id="quote-translation" class="text-lg font-tamil text-slate-700 dark:text-slate-300"></p>
+            </div>
+
+            <!-- Bottom Interactive Controls -->
+            <div class="mt-8 pt-6 border-t border-slate-200/60 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-4 relative z-10">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="category-filter" onchange="filterByCategory(this.value)" class="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm w-full sm:w-auto">
+                        <option value="all">All Categories (அனைத்து பிரிவுகளும்)</option>
+                        <option value="motivation">Motivation (ஊக்கம்)</option>
+                        <option value="success">Success & Hardwork (வெற்றி)</option>
+                        <option value="wisdom">Wisdom & Life (ஞானம் / வாழ்க்கை)</option>
+                        <option value="thirukkural">Thirukkural (திருக்குறள்)</option>
+                        <option value="leader">Leaders & Legends (தலைவர்கள்)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <button onclick="openCustomQuoteModal()" class="px-4 py-2.5 rounded-xl bg-slate-200/70 dark:bg-slate-800/70 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium text-xs shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Add Quote
+                    </button>
+                    <button onclick="generateRandomQuote()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 transition transform active:scale-95 flex items-center gap-2">
+                        <i class="fa-solid fa-shuffle"></i> New Quote (புதிய மேற்கோள்)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-center items-center gap-3">
+            <button onclick="switchTab('generator')" id="tab-generator" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white/20 text-white backdrop-blur-sm transition border border-white/20 shadow">
+                <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Generator
+            </button>
+            <button onclick="switchTab('favorites')" id="tab-favorites" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-slate-300 backdrop-blur-sm transition border border-white/10">
+                <i class="fa-solid fa-heart mr-1.5 text-pink-400"></i> Favorites (<span id="fav-count">0</span>)
+            </button>
+            <button onclick="openThemePicker()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-slate-300 backdrop-blur-sm transition border border-white/10">
+                <i class="fa-solid fa-palette mr-1.5 text-purple-400"></i> Theme Backgrounds
+            </button>
+        </div>
+
+        <!-- Favorites Container (Hidden by default) -->
+        <div id="favorites-view" class="hidden mt-6 glass rounded-3xl shadow-2xl p-6 md:p-8 max-h-[500px] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-heart text-pink-500"></i> Your Saved Quotes (சேமிக்கப்பட்டவை)
+                </h2>
+                <button onclick="clearFavorites()" class="text-xs text-rose-500 hover:underline font-medium">Clear All</button>
+            </div>
+            <div id="favorites-list" class="space-y-4">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Quote Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl animate-fade relative">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-feather text-indigo-500"></i> Add Your Custom Quote
+                </h3>
+                <button onclick="closeCustomQuoteModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="custom-quote-form" onsubmit="saveCustomQuote(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-600 dark:text-slate-400">Language (மொழி)</label>
+                    <select id="custom-lang" class="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        <option value="en">English</option>
+                        <option value="ta">Tamil (தமிழ்)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-600 dark:text-slate-400">Quote Text (மேற்கோள்)</label>
+                    <textarea id="custom-text" required rows="3" placeholder="Type your inspiring quote here..." class="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-600 dark:text-slate-400">Author / Source (ஆசிரியர்)</label>
+                    <input type="text" id="custom-author" required placeholder="e.g. Swami Vivekananda / அப்துல் கலாம்" class="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-600 dark:text-slate-400">Category (பிரிவு)</label>
+                    <select id="custom-category" class="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        <option value="motivation">Motivation</option>
+                        <option value="success">Success</option>
+                        <option value="wisdom">Wisdom</option>
+                        <option value="thirukkural">Thirukkural</option>
+                        <option value="leader">Leader</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeCustomQuoteModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20">Save Quote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Theme Picker Modal -->
+    <div id="theme-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-fade relative">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-purple-500"></i> Choose Background Theme
+                </h3>
+                <button onclick="closeThemePicker()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="setTheme('bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900')" class="p-3 rounded-2xl bg-gradient-to-r from-indigo-900 to-purple-900 text-white text-xs font-medium text-left border border-white/20 shadow">Cosmic Night</button>
+                <button onclick="setTheme('bg-gradient-to-br from-blue-700 via-teal-800 to-slate-900')" class="p-3 rounded-2xl bg-gradient-to-r from-blue-700 to-teal-800 text-white text-xs font-medium text-left border border-white/20 shadow">Ocean Breeze</button>
+                <button onclick="setTheme('bg-gradient-to-br from-rose-900 via-orange-900 to-stone-900')" class="p-3 rounded-2xl bg-gradient-to-r from-rose-900 to-orange-900 text-white text-xs font-medium text-left border border-white/20 shadow">Sunset Glow</button>
+                <button onclick="setTheme('bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900')" class="p-3 rounded-2xl bg-gradient-to-r from-emerald-900 to-teal-900 text-white text-xs font-medium text-left border border-white/20 shadow">Emerald Forest</button>
+                <button onclick="setTheme('bg-gradient-to-br from-slate-900 via-zinc-900 to-stone-900')" class="p-3 rounded-2xl bg-gradient-to-r from-slate-900 to-zinc-900 text-white text-xs font-medium text-left border border-white/20 shadow">Minimal Dark</button>
+                <button onclick="setTheme('bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-200 !text-slate-900')" class="p-3 rounded-2xl bg-gradient-to-r from-amber-100 to-yellow-200 text-slate-900 text-xs font-medium text-left border border-black/10 shadow">Golden Morning</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs font-medium border border-slate-700">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toast-msg">Action completed successfully!</span>
+    </div>
+
+    <footer class="w-full max-w-5xl mx-auto px-4 py-6 text-center text-xs text-slate-400">
+        <p>Inspiring quotes in English & Tamil • Crafted with <i class="fa-solid fa-heart text-pink-500 mx-1"></i> for Daily Motivation</p>
+    </footer>
+
+    <script>
+        // Comprehensive Quote Dataset in Tamil and English across multiple categories
+        const quotesData = [
+            // Tamil Motivation & Wisdom
+            {
+                id: 1,
+                text: "வெற்றி என்பது இறுதி கிடையாது; தோல்வி என்பது முடிவல்ல; தொடரும் முயற்சியே நம்மை உயர்த்தும்.",
+                author: "அப்துல் கலாம்",
+                lang: "ta",
+                category: "motivation",
+                translation: "Success is not final; failure is not fatal: it is the courage to continue that counts."
+            },
+            {
+                id: 2,
+                text: "எண்ணம் போல் வாழ்க்கை. எண்ணம் தூய்மையாக இருந்தால் வாழ்க்கை சிறப்பானதாக அமையும்.",
+                author: "சுவாமி விவேகானந்தர்",
+                lang: "ta",
+                category: "wisdom",
+                translation: "As you think, so shall you become. Keep your thoughts pure."
+            },
+            {
+                id: 3,
+                text: "அறிவு என்பது செல்வம் போன்றது; அதை எவ்வளவுக்கு எவ்வளவு பகிர்கிறாயோ, அவ்வளவுக்கு அவ்வளவு பெருகும்.",
+                author: "தமிழ் பழமொழி",
+                lang: "ta",
+                category: "wisdom",
+                translation: "Knowledge is like wealth; the more you share it, the more it grows."
+            },
+            // Thirukkural
+            {
+                id: 4,
+                text: "செயற்கரிய செய்வார் பெரியர் சிறியர் செயற்கரிய செய்கலா தார்.",
+                author: "திருவள்ளுவர் (திருக்குறள் 26)",
+                lang: "ta",
+                category: "thirukkural",
+                translation: "Great men accomplish tasks that are deemed impossible; smaller men cannot do so."
+            },
+            {
+                id: 5,
+                text: "தொட்டனைத் தூறும் மணற்கேணி மாந்தர்க்குக் கற்றனைத் தூறும் அறிவு.",
+                author: "திருவள்ளுவர் (திருக்குறள் 396)",
+                lang: "ta",
+                category: "thirukkural",
+                translation: "Water springs from sand in proportion to the depth dug; wisdom springs in men in proportion to their learning."
+            },
+            {
+                id: 6,
+                text: "தெய்வத்தான் ஆகா தெனினும் முயற்சிதன் மெய்வருத்த கூலி தரும்.",
+                author: "திருவள்ளுவர் (திருக்குறள் 619)",
+                lang: "ta",
+                category: "thirukkural",
+                translation: "Even if fate opposes, the toil of persistent effort will yield its due reward."
+            },
+            // English Motivation & Success
+            {
+                id: 7,
+                text: "The future belongs to those who believe in the beauty of their dreams.",
+                author: "Eleanor Roosevelt",
+                lang: "en",
+                category: "motivation",
+                translation: "எதிர்காலம் தன் கனவுகளின் அழகை நம்புபவர்களுக்கு சொந்தமானது."
+            },
+            {
+                id: 8,
+                text: "Don't watch the clock; do what it does. Keep going.",
+                author: "Sam Levenson",
+                lang: "en",
+                category: "success",
+                translation: "கடிகாரத்தைப் பார்க்காதீர்கள்; அது செய்வது போல நீங்களும் தொடர்ந்து முன்னேறிச் செல்லுங்கள்."
+            },
+            {
+                id: 9,
+                text: "The secret of getting ahead is getting started.",
+                author: "Mark Twain",
+                lang: "en",
+                category: "success",
+                translation: "முன்னேறுவதற்கான இரகசியம் தொடங்குவதில்தான் உள்ளது."
+            },
+            {
+                id: 10,
+                text: "In the middle of every difficulty lies opportunity.",
+                author: "Albert Einstein",
+                lang: "en",
+                category: "wisdom",
+                translation: "ஒ h ஒவ்வொரு சிக்கலின் நடுவிலும் ஒரு வாய்ப்பு மறைந்துள்ளது."
+            },
+            {
+                id: 11,
+                text: "You miss 100% of the shots you don't take.",
+                author: "Wayne Gretzky",
+                lang: "en",
+                category: "motivation",
+                translation: "நீங்கள் முயற்சிக்காத எந்தவொரு செயலின் வெற்றியும் நூறு சதவீதம் கிடைக்காது."
+            },
+            {
+                id: 12,
+                text: "타 இல்லாவிட்டால் சாதனை இல்லை. விடாமுயற்சியே வெற்றியின் திறவுகோல்.",
+                author: "நிகழ்கால சிந்தனை",
+                lang: "ta",
+                category: "success",
+                translation: "Persistence is key to overcoming obstacles."
+            },
+            {
+                id: 13,
+                text: "Education is the most powerful weapon which you can use to change the world.",
+                author: "Nelson Mandela",
+                lang: "en",
+                category: "leader",
+                translation: "கல்வி என்பது உலகத்தை மாற்ற நீங்கள் பயன்படுத்தக்கூடிய மிகவும் சக்திவாய்ந்த ஆயுதம்."
+            },
+            {
+                id: 14,
+                text: "பெரிய இலட்சியங்களை நிர்ணயியுங்கள், அவற்றை அடைய கடினமாக உழையுங்கள்.",
+                author: "காமராஜர்",
+                lang: "ta",
+                category: "leader",
+                translation: "Set high goals and work hard to achieve them."
+            }
+        ];
+
+        // App state
+        let currentQuotes = [...quotesData];
+        let currentQuoteIndex = 0;
+        let activeLangFilter = 'all';
+        let activeCategoryFilter = 'all';
+        let favorites = JSON.parse(localStorage.getItem('quote_favorites')) || [];
+
+        // DOM Elements
+        const quoteTextEl = document.getElementById('quote-text');
+        const quoteAuthorEl = document.getElementById('quote-author');
+        const quoteCategoryBadge = document.getElementById('quote-category-badge');
+        const quoteLangBadge = document.getElementById('quote-lang-badge');
+        const translationContainer = document.getElementById('translation-container');
+        const quoteTranslationEl = document.getElementById('quote-translation');
+        const favoriteBtn = document.getElementById('favorite-btn');
+        const favCountEl = document.getElementById('fav-count');
+
+        // Initialize application
+        window.onload = function() {
+            updateFavoritesCount();
+            generateRandomQuote();
+        }
+
+        // Filter by language ('all', 'en', 'ta')
+        function setLangFilter(lang) {
+            activeLangFilter = lang;
+            
+            // Update active styles on pills
+            ['all', 'en', 'ta'].forEach(l => {
+                const btn = document.getElementById(`lang-${l}`);
+                if (l === lang) {
+                    btn.className = 'px-3 py-1.5 rounded-full font-medium transition text-white bg-indigo-600 shadow';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-full font-medium transition text-slate-300 hover:text-white';
+                }
+            });
+
+            applyFilters();
+            generateRandomQuote();
+        }
+
+        // Filter by category selection dropdown
+        function filterByCategory(category) {
+            activeCategoryFilter = category;
+            applyFilters();
+            generateRandomQuote();
+        }
+
+        // Apply filters to dataset
+        function applyFilters() {
+            currentQuotes = quotesData.filter(q => {
+                const matchLang = (activeLangFilter === 'all' || q.lang === activeLangFilter);
+                const matchCategory = (activeCategoryFilter === 'all' || q.category === activeCategoryFilter);
+                return matchLang && matchCategory;
+            });
+
+            if (currentQuotes.length === 0) {
+                currentQuotes = [{
+                    id: 999,
+                    text: "No quotes found matching your filter criteria. Try resetting filters!",
+                    author: "System",
+                    lang: "en",
+                    category: "general",
+                    translation: "உங்கள் வடிகட்டிக்கு ஏற்ற மேற்கோள்கள் எதுவும் கிடைக்கவில்லை."
+                }];
+            }
+        }
+
+        // Generate Random Quote
+        function generateRandomQuote() {
+            if (currentQuotes.length === 0) applyFilters();
+            
+            const randomIndex = Math.floor(Math.random() * currentQuotes.length);
+            currentQuoteIndex = randomIndex;
+            const quote = currentQuotes[currentQuoteIndex];
+
+            // Trigger animation
+            quoteTextEl.classList.remove('animate-fade');
+            quoteAuthorEl.classList.remove('animate-fade');
+            void quoteTextEl.offsetWidth; // trigger reflow
+            quoteTextEl.classList.add('animate-fade');
+            quoteAuthorEl.classList.add('animate-fade');
+
+            // Set content
+            quoteTextEl.innerText = `"${quote.text}"`;
+            if (quote.lang === 'ta') {
+                quoteTextEl.classList.add('font-tamil');
+            } else {
+                quoteTextEl.classList.remove('font-tamil');
+            }
+
+            quoteAuthorEl.innerText = `— ${quote.author}`;
+            quoteCategoryBadge.innerText = quote.category.toUpperCase();
+            quoteLangBadge.innerText = quote.lang === 'ta' ? 'தமிழ்' : 'English';
+
+            if (quote.translation) {
+                translationContainer.classList.remove('hidden');
+                quoteTranslationEl.innerText = quote.translation;
+            } else {
+                translationContainer.classList.add('hidden');
+            }
+
+            updateFavoriteButtonState();
+        }
+
+        // Copy quote to clipboard
+        function copyQuote() {
+            const quote = currentQuotes[currentQuoteIndex];
+            const textToCopy = `${quote.text} \n— ${quote.author}`;
+            
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Quote copied to clipboard!');
+            } catch (err) {
+                showToast('Failed to copy quote.');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Text to Speech pronunciation
+        function speakQuote() {
+            const quote = currentQuotes[currentQuoteIndex];
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // stop previous
+                const utterance = new SpeechSynthesisUtterance(`${quote.text} by ${quote.author}`);
+                utterance.lang = quote.lang === 'ta' ? 'ta-IN' : 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+                showToast('Reading quote aloud...');
+            } else {
+                showToast('Text-to-speech not supported in this browser.');
+            }
+        }
+
+        // Favorites functionality
+        function toggleFavorite() {
+            const quote = currentQuotes[currentQuoteIndex];
+            const existingIndex = favorites.findIndex(f => f.text === quote.text);
+
+            if (existingIndex > -1) {
+                favorites.splice(existingIndex, 1);
+                showToast('Removed from favorites.');
+            } else {
+                favorites.push(quote);
+                showToast('Saved to favorites!');
+            }
+
+            localStorage.setItem('quote_favorites', JSON.stringify(favorites));
+            updateFavoriteButtonState();
+            updateFavoritesCount();
+            renderFavoritesList();
+        }
+
+        function updateFavoriteButtonState() {
+            const quote = currentQuotes[currentQuoteIndex];
+            if (!quote) return;
+            const isFav = favorites.some(f => f.text === quote.text);
+            if (isFav) {
+                favoriteBtn.innerHTML = '<i class="fa-solid fa-heart text-pink-500 text-base"></i>';
+                favoriteBtn.classList.add('bg-pink-500/10', 'border-pink-500/30');
+            } else {
+                favoriteBtn.innerHTML = '<i class="fa-regular fa-heart text-base"></i>';
+                favoriteBtn.classList.remove('bg-pink-500/10', 'border-pink-500/30');
+            }
+        }
+
+        function updateFavoritesCount() {
+            favCountEl.innerText = favorites.length;
+        }
+
+        function switchTab(tab) {
+            const generatorView = document.getElementById('quote-card');
+            const favoritesView = document.getElementById('favorites-view');
+            const tabGen = document.getElementById('tab-generator');
+            const tabFav = document.getElementById('tab-favorites');
+
+            if (tab === 'generator') {
+                generatorView.classList.remove('hidden');
+                favoritesView.classList.add('hidden');
+                tabGen.className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-white/20 text-white backdrop-blur-sm transition border border-white/20 shadow';
+                tabFav.className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-slate-300 backdrop-blur-sm transition border border-white/10';
+            } else {
+                generatorView.classList.add('hidden');
+                favoritesView.classList.remove('hidden');
+                tabFav.className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-white/20 text-white backdrop-blur-sm transition border border-white/20 shadow';
+                tabGen.className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-slate-300 backdrop-blur-sm transition border border-white/10';
+                renderFavoritesList();
+            }
+        }
+
+        function renderFavoritesList() {
+            const listEl = document.getElementById('favorites-list');
+            if (favorites.length === 0) {
+                listEl.innerHTML = '<p class="text-center text-slate-400 text-sm py-8">No saved quotes yet. Click the heart icon to save your favorites!</p>';
+                return;
+            }
+
+            listEl.innerHTML = favorites.map((fav, idx) => `
+                <div class="bg-white/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 flex flex-col gap-2">
+                    <p class="text-sm font-medium ${fav.lang === 'ta' ? 'font-tamil text-base' : ''}">"${fav.text}"</p>
+                    <div class="flex justify-between items-center text-xs text-indigo-600 dark:text-indigo-400">
+                        <span>— ${fav.author}</span>
+                        <button onclick="removeFavorite(${idx})" class="text-rose-500 hover:text-rose-700 font-medium">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeFavorite(index) {
+            favorites.splice(index, 1);
+            localStorage.setItem('quote_favorites', JSON.stringify(favorites));
+            updateFavoritesCount();
+            renderFavoritesList();
+            updateFavoriteButtonState();
+            showToast('Quote removed from favorites.');
+        }
+
+        function clearFavorites() {
+            favorites = [];
+            localStorage.setItem('quote_favorites', JSON.stringify(favorites));
+            updateFavoritesCount();
+            renderFavoritesList();
+            updateFavoriteButtonState();
+            showToast('All favorites cleared.');
+        }
+
+        // Custom Quote Modal handlers
+        function openCustomQuoteModal() {
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeCustomQuoteModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+            document.getElementById('custom-quote-form').reset();
+        }
+
+        function saveCustomQuote(e) {
+            e.preventDefault();
+            const text = document.getElementById('custom-text').value;
+            const author = document.getElementById('custom-author').value;
+            const lang = document.getElementById('custom-lang').value;
+            const category = document.getElementById('custom-category').value;
+
+            const newQuote = {
+                id: Date.now(),
+                text,
+                author,
+                lang,
+                category,
+                translation: lang === 'ta' ? 'Custom Added Quote' : 'தனிப்பயன் மேற்கோள்'
+            };
+
+            quotesData.unshift(newQuote);
+            applyFilters();
+            closeCustomQuoteModal();
+            generateRandomQuote();
+            showToast('Custom quote added successfully!');
+        }
+
+        // Theme Picker handlers
+        function openThemePicker() {
+            document.getElementById('theme-modal').classList.remove('hidden');
+        }
+
+        function closeThemePicker() {
+            document.getElementById('theme-modal').classList.add('hidden');
+        }
+
+        function setTheme(themeClass) {
+            document.body.className = `${themeClass} min-h-screen text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white transition-all duration-500`;
+            closeThemePicker();
+            showToast('Background theme updated!');
+        }
+
+        // Toast notification helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
